@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shakespeare's Digital Quill 🎭</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '🎭';
+            position: absolute;
+            font-size: 200px;
+            opacity: 0.1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            font-style: italic;
+            position: relative;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 1.1em;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Georgia', serif;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 18px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .clear-btn:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        .output-box {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 30px;
+            border-radius: 12px;
+            min-height: 250px;
+            font-size: 1.1em;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-family: 'Georgia', serif;
+        }
+
+        .empty-state {
+            text-align: center;
+            opacity: 0.5;
+            font-style: italic;
+            padding: 60px 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #c53030;
+        }
+
+        .success-pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .hint {
+            font-size: 0.9em;
+            color: #718096;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .copy-btn {
+            background: #48bb78;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Shakespeare's Digital Quill</h1>
+            <p class="subtitle">Where AI Meets the Bard's Eloquent Gibberish</p>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <label for="prompt">✍️ Your Prompt (Optional)</label>
+                <textarea 
+                    id="prompt" 
+                    placeholder="Start with a line, or leave empty for pure spontaneity... 
+                    
+Example: 'To be or not to be'
+Example: 'Once upon a midnight dreary'
+Example: Leave it blank for random Shakespearean musings!"
+                ></textarea>
+                <p class="hint">💡 Tip: The AI was trained on Shakespeare, so expect theatrical flourishes and archaic charm!</p>
+            </div>
+
+            <div class="card">
+                <label for="tokens">🎲 Generation Length</label>
+                <select id="tokens">
+                    <option value="">✨ Surprise Me! (Random)</option>
+                    <option value="100">Brief Soliloquy (~100 tokens)</option>
+                    <option value="200">Short Scene (~200 tokens)</option>
+                    <option value="300">Medium Passage (~300 tokens)</option>
+                    <option value="500">Full Monologue (~500 tokens)</option>
+                    <option value="750">Extended Scene (~750 tokens)</option>
+                    <option value="1000">Epic Tale (~1000 tokens)</option>
+                    <option value="1500">Grand Performance (~1500 tokens)</option>
+                    <option value="2000">Legendary Opus (~2000 tokens)</option>
+                </select>
+                <p class="hint">💡 Random mode selects from: 500, 750, 1000, 1500, 2000, or 2500 tokens</p>
+            </div>
+
+            <div class="button-group">
+                <button class="generate-btn" onclick="generateText()" id="generateBtn">
+                    🎭 Invoke the Bard
+                </button>
+                <button class="clear-btn" onclick="clearAll()">
+                    🗑️ Clear All
+                </button>
+            </div>
+
+            <div id="errorContainer"></div>
+
+            <div class="output-section">
+                <div class="card">
+                    <label>📜 The Bard's Response</label>
+                    <div class="output-box" id="output">
+                        <div class="empty-state">
+                            Awaiting thy command...<br>
+                            Click "Invoke the Bard" to summon Shakespearean wonders!
+                        </div>
+                    </div>
+                    <button class="copy-btn" id="copyBtn" style="display: none;" onclick="copyToClipboard()">
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
+
+                <div class="stats" id="stats" style="display: none;">
+                    <div class="stat-card">
+                        <span class="stat-value" id="tokensGenerated">-</span>
+                        <span class="stat-label">Tokens Generated</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalLength">-</span>
+                        <span class="stat-label">Characters</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="generationTime">-</span>
+                        <span class="stat-label">Generation Time (s)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalTime">-</span>
+                        <span class="stat-label">Total Time (s)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>⚡ Powered by NanoGPT | 🧠 Trained on Shakespeare | 💜 Made with Local AI Magic</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        async function generateText() {
+            const generateBtn = document.getElementById('generateBtn');
+            const outputBox = document.getElementById('output');
+            const errorContainer = document.getElementById('errorContainer');
+            const statsSection = document.getElementById('stats');
+            const copyBtn = document.getElementById('copyBtn');
+            const promptInput = document.getElementById('prompt');
+            const tokensSelect = document.getElementById('tokens');
+
+            // Clear previous errors
+            errorContainer.innerHTML = '';
+            
+            // Disable button and show loading
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="loading"></span>Summoning the Bard...';
+            
+            // Show loading in output
+            outputBox.innerHTML = '<div class="empty-state">🎭 The Bard is composing...<br>This may take a moment...</div>';
+            statsSection.style.display = 'none';
+            copyBtn.style.display = 'none';
+
+            try {
+                const requestBody = {
+                    text: promptInput.value.trim() || null,
+                    new_tokens: tokensSelect.value ? parseInt(tokensSelect.value) : null
+                };
+
+                const response = await fetch(`${API_URL}/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Display the generated text
+                outputBox.innerHTML = data.generated_text;
+                outputBox.classList.add('success-pulse');
+                setTimeout(() => outputBox.classList.remove('success-pulse'), 500);
+
+                // Show stats
+                document.getElementById('tokensGenerated').textContent = data.tokens_generated;
+                document.getElementById('totalLength').textContent = data.total_length;
+                document.getElementById('generationTime').textContent = data.generation_time_seconds;
+                document.getElementById('totalTime').textContent = data.total_response_time_seconds;
+                statsSection.style.display = 'grid';
+                copyBtn.style.display = 'inline-block';
+
+            } catch (error) {
+                errorContainer.innerHTML = `
+                    <div class="error-message">
+                        <strong>❌ Error:</strong> ${error.message}
+                        <br><small>Make sure the API server is running on ${API_URL}</small>
+                    </div>
+                `;
+                outputBox.innerHTML = '<div class="empty-state">Generation failed. Please check the error above.</div>';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '🎭 Invoke the Bard';
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('prompt').value = '';
+            document.getElementById('tokens').value = '';
+            document.getElementById('output').innerHTML = '<div class="empty-state">Awaiting thy command...<br>Click "Invoke the Bard" to summon Shakespearean wonders!</div>';
+            document.getElementById('errorContainer').innerHTML = '';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('copyBtn').style.display = 'none';
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('output').textContent;
+            navigator.clipboard.writeText(outputText).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✅ Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        // Allow Enter key to submit (Ctrl+Enter in textarea)
+        document.getElementById('prompt').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateText();
+            }
+        });
+
+        // Check API status on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_URL}/`);
+                const data = await response.json();
+                console.log('✅ API Status:', data.message);
+            } catch (error) {
+                console.error('❌ API not reachable:', error);
+                document.getElementById('errorContainer').innerHTML = `
+                    <div class="error-message">
+                        <strong>⚠️ Warning:</strong> Cannot connect to API server at ${API_URL}
+                        <br><small>Please start the server with: uvicorn main:app --reload</small>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
